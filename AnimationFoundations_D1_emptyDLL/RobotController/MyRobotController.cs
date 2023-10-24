@@ -225,7 +225,7 @@ namespace RobotController
 
         internal float CalculateLerp(float a, float b, float t)
         {
-            return a + t * (b - a);
+            return a + (b - a) * t;
         }
 
 
