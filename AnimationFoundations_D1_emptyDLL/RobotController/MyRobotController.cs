@@ -34,7 +34,6 @@ namespace RobotController
         #region public methods
 
 
-
         public string Hi()
         {
 
@@ -46,13 +45,30 @@ namespace RobotController
 
         //EX1: this function will place the robot in the initial position
 
-        public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
+        public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
+        {
 
-            //todo: change this, use the function Rotate declared below
-            rot0 = NullQ;
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
+            //Define rotation angle axis
+            MyVec rotationAxis;
+
+            //First angle to rotate in: y
+            rotationAxis.x = 0;
+            rotationAxis.y = 1;
+            rotationAxis.z = 0;
+
+            //Rotate the joint 0 to position 75
+            rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
+            rot0 = Rotate(rot0, rotationAxis, 75);
+
+
+            //Second angle to rotate in: x
+            rotationAxis.x = 1;
+            rotationAxis.y = 0;
+
+            //Rotate the joints 1, 2 and 3 to the respective positions in order to put it straight
+            rot1 = Rotate(rot0, rotationAxis, -7);
+            rot2 = Rotate(rot1, rotationAxis, 80);
+            rot3 = Rotate(rot2, rotationAxis, 40);
         }
 
 
@@ -63,20 +79,38 @@ namespace RobotController
 
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
+            //Define rotation angle axis
+            MyVec rotationAxis;
+
+            float interpolationValue = 0;
 
             bool myCondition = false;
             //todo: add a check for your condition
 
-
+            
 
             if (myCondition)
             {
-                //todo: add your code here
-                rot0 = NullQ;
-                rot1 = NullQ;
-                rot2 = NullQ;
-                rot3 = NullQ;
+                //First angle to rotate in: y
+                rotationAxis.x = 0;
+                rotationAxis.y = 1;
+                rotationAxis.z = 0;
 
+                //Rotate joint 0 to position
+                rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
+                rot0 = Rotate(rot0, rotationAxis, CalculateLerp(74, 40, interpolationValue));
+
+                //Second axis to rotate in: x
+                rotationAxis.x = 1;
+                rotationAxis.y = 0;
+
+
+                //Rotate each joint to each position
+                rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
+                rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+                rot3 = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
+
+                interpolationValue += 0.0035f;
 
                 return true;
             }
@@ -160,32 +194,44 @@ namespace RobotController
             }
         }
 
-        internal MyQuat Multiply(MyQuat q1, MyQuat q2) {
+        internal MyQuat Multiply(MyQuat q1, MyQuat q2)
+        {
 
-            //todo: change this so it returns a multiplication:
-            return NullQ;
+            MyQuat result;
+            result.w = (q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
+            result.x = (q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y);
+            result.y = (q1.w * q2.y + q1.x * q2.z + q1.y * q2.w - q1.z * q2.x);
+            result.z = (q1.w * q2.z + q1.x * q2.y + q1.y * q2.x - q1.z * q2.w);
+
+            return result;
 
         }
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
 
-            //todo: change this so it takes currentRotation, and calculate a new quaternion rotated by an angle "angle" radians along the normalized axis "axis"
-            return NullQ;
+            MyQuat result;
+
+            result.w = (float)Math.Cos((angle / 2) * Math.PI / 180);
+            result.x = axis.x * (float)Math.Sin((angle / 2) * Math.PI / 180);
+            result.y = axis.y * (float)Math.Sin((angle / 2) * Math.PI / 180);
+            result.z = axis.z * (float)Math.Sin((angle / 2) * Math.PI / 180);
+
+            result = Multiply(currentRotation, result);
+
+            return result;
 
         }
 
+        internal float CalculateLerp(float a, float b, float t)
+        {
+            return a + (b - a) * t;
+        }
 
 
 
         //todo: add here all the functions needed
 
         #endregion
-
-
-
-
-
-
     }
 }
