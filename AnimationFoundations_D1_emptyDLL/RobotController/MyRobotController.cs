@@ -79,20 +79,38 @@ namespace RobotController
 
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
+            //Define rotation angle axis
+            MyVec rotationAxis;
+
+            float interpolationValue = 0;
 
             bool myCondition = false;
             //todo: add a check for your condition
 
-
+            
 
             if (myCondition)
             {
-                //todo: add your code here
-                rot0 = NullQ;
-                rot1 = NullQ;
-                rot2 = NullQ;
-                rot3 = NullQ;
+                //First angle to rotate in: y
+                rotationAxis.x = 0;
+                rotationAxis.y = 1;
+                rotationAxis.z = 0;
 
+                //Rotate joint 0 to position
+                rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
+                rot0 = Rotate(rot0, rotationAxis, CalculateLerp(74, 40, interpolationValue));
+
+                //Second axis to rotate in: x
+                rotationAxis.x = 1;
+                rotationAxis.y = 0;
+
+
+                //Rotate each joint to each position
+                rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
+                rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+                rot3 = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
+
+                interpolationValue += 0.0035f;
 
                 return true;
             }
@@ -205,6 +223,10 @@ namespace RobotController
 
         }
 
+        internal float CalculateLerp(float a, float b, float t)
+        {
+            return a + t * (b - a);
+        }
 
 
 
