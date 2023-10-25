@@ -209,7 +209,7 @@ namespace RobotController
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
-
+             
             MyQuat result;
 
             result.w = (float)Math.Cos((angle / 2) * Math.PI / 180);
