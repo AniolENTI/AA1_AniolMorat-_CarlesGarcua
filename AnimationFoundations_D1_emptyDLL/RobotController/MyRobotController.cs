@@ -84,10 +84,10 @@ namespace RobotController
 
             float interpolationValue = 0;
 
-            bool myCondition = false;
+            bool myCondition = true;
             //todo: add a check for your condition
 
-            
+
 
             if (myCondition)
             {
@@ -111,6 +111,7 @@ namespace RobotController
                 rot3 = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
 
                 interpolationValue += 0.0035f;
+                
 
                 return true;
             }
@@ -157,6 +158,9 @@ namespace RobotController
         public static MyQuat GetSwing(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
+
+            MyQuat q1 = rot3
+
             return NullQ;
 
         }
@@ -165,6 +169,8 @@ namespace RobotController
         public static MyQuat GetTwist(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
+
+
             return NullQ;
 
         }
@@ -188,7 +194,7 @@ namespace RobotController
                 a.w = 1;
                 a.x = 0;
                 a.y = 0;
-                a.z = 0;
+                a.z = 0; 
                 return a;
 
             }
@@ -209,7 +215,7 @@ namespace RobotController
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
-             
+
             MyQuat result;
 
             result.w = (float)Math.Cos((angle / 2) * Math.PI / 180);
