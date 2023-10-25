@@ -159,9 +159,9 @@ namespace RobotController
         {
             //todo: change the return value for exercise 3
 
-            MyQuat q1 = rot3
+            MyQuat result = Multiply(Inverse(GetTwist(rot3)),rot3);
 
-            return NullQ;
+            return result;
 
         }
 
@@ -170,8 +170,14 @@ namespace RobotController
         {
             //todo: change the return value for exercise 3
 
+            MyQuat result;
 
-            return NullQ;
+            result.w = rot3.x;
+            result.x = 0;
+            result.y = 0;
+            result.z = rot3.w;
+
+            return result;
 
         }
 
@@ -200,7 +206,7 @@ namespace RobotController
             }
         }
 
-        internal MyQuat Multiply(MyQuat q1, MyQuat q2)
+        internal static MyQuat Multiply(MyQuat q1, MyQuat q2)
         {
 
             MyQuat result;
@@ -232,6 +238,19 @@ namespace RobotController
         internal float CalculateLerp(float a, float b, float t)
         {
             return a + (b - a) * t;
+        }
+
+        internal static MyQuat Inverse(MyQuat q1)
+        {
+
+            MyQuat result;
+            result.w = q1.w;
+            result.x = -q1.x;
+            result.y = -q1.y;
+            result.z = -q1.z;
+
+            return result;
+
         }
 
 
