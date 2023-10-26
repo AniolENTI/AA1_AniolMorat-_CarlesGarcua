@@ -23,7 +23,7 @@ namespace RobotController
         public float z;
     }
 
-
+    
 
 
 
@@ -32,12 +32,18 @@ namespace RobotController
     {
 
         #region public methods
+        
+        float interpolationValue = 0;
+        bool ex2Condition = false;
+        bool ex3Condition = false;
 
+       static MyQuat swing = new MyQuat();
+       static  MyQuat twist = new MyQuat();
 
         public string Hi()
         {
 
-            string s = "hello world from my Robot Controller";
+            string s = "Hola som el Carles García i l'Aniol Morató";
             return s;
 
         }
@@ -56,19 +62,23 @@ namespace RobotController
             rotationAxis.y = 1;
             rotationAxis.z = 0;
 
-            //Rotate the joint 0 to position 75
+            //Rotate the joint 0 to position 74
             rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
-            rot0 = Rotate(rot0, rotationAxis, 75);
+            rot0 = Rotate(rot0, rotationAxis, 74);
 
 
             //Second angle to rotate in: x
             rotationAxis.x = 1;
             rotationAxis.y = 0;
+            rotationAxis.z = 0;
 
             //Rotate the joints 1, 2 and 3 to the respective positions in order to put it straight
             rot1 = Rotate(rot0, rotationAxis, -7);
             rot2 = Rotate(rot1, rotationAxis, 80);
-            rot3 = Rotate(rot2, rotationAxis, 40);
+            rot3 = Rotate(rot2, rotationAxis, 0);
+
+            ex2Condition = true;
+            ex3Condition = true;
         }
 
 
@@ -82,16 +92,12 @@ namespace RobotController
             //Define rotation angle axis
             MyVec rotationAxis;
 
-            float interpolationValue = 0;
 
-            bool myCondition = false;
-            //todo: add a check for your condition
 
-            
 
-            if (myCondition)
+            if (ex2Condition && interpolationValue <= 1)
             {
-                //First angle to rotate in: y
+                //First angle to rotate in: y               
                 rotationAxis.x = 0;
                 rotationAxis.y = 1;
                 rotationAxis.z = 0;
@@ -112,16 +118,24 @@ namespace RobotController
 
                 interpolationValue += 0.0035f;
 
+
+
                 return true;
             }
+            else
+            {
+                interpolationValue = 0;
 
-            //todo: remove this once your code works.
-            rot0 = NullQ;
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
+                rot0 = NullQ;
+                rot1 = NullQ;
+                rot2 = NullQ;
+                rot3 = NullQ;
 
-            return false;
+                ex2Condition = false;
+
+                return false;
+            }
+
         }
 
 
@@ -132,16 +146,75 @@ namespace RobotController
         public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
 
-            bool myCondition = false;
-            //todo: add a check for your condition
+            MyVec rotationAxis;
 
 
 
-            while (myCondition)
+
+            if (ex3Condition && interpolationValue <= 1)
             {
-                //todo: add your code here
+               
+                //First angle to rotate in: y               
+                rotationAxis.x = 0;
+                rotationAxis.y = 1;
+                rotationAxis.z = 0;
+
+                //Rotate joint 0 to position
+                rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
+                rot0 = Rotate(rot0, rotationAxis, CalculateLerp(74, 40, interpolationValue));
+
+                //Second axis to rotate in: x
+                rotationAxis.x = 1;
+                rotationAxis.y = 0;
 
 
+                //Rotate each joint to each position
+                rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
+                rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+
+                //Tird axis to rotate in: x
+                rotationAxis.x = 1;
+                rotationAxis.y = 0;
+                rotationAxis.z = 0;
+
+
+                //Calculate swing 
+                swing = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
+
+
+                //Fourth axis to rotate in: z
+                rotationAxis.x = 0;
+                rotationAxis.y = 1;
+                rotationAxis.z = 0;
+
+                //Calculate twist
+                twist = Rotate(swing, rotationAxis, CalculateLerp(0, 45, interpolationValue));
+
+               
+                
+
+
+
+                rot3 = Multiply(swing, twist);
+
+                interpolationValue += 0.0035f;
+
+
+
+                return true;
+            }
+            else
+            {
+                interpolationValue = 0;
+
+                rot0 = NullQ;
+                rot1 = NullQ;
+                rot2 = NullQ;
+                rot3 = NullQ;
+
+                ex3Condition = false;
+
+                return false;
             }
 
             //todo: remove this once your code works.
@@ -157,7 +230,10 @@ namespace RobotController
         public static MyQuat GetSwing(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return NullQ;
+
+            MyQuat result = Multiply(Inverse(twist), rot3);
+
+            return result;
 
         }
 
@@ -165,7 +241,12 @@ namespace RobotController
         public static MyQuat GetTwist(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return NullQ;
+
+            MyQuat result;
+
+            result = Multiply(rot3,Inverse(swing));
+
+            return result;
 
         }
 
@@ -194,7 +275,7 @@ namespace RobotController
             }
         }
 
-        internal MyQuat Multiply(MyQuat q1, MyQuat q2)
+        internal static MyQuat Multiply(MyQuat q1, MyQuat q2)
         {
 
             MyQuat result;
@@ -209,7 +290,7 @@ namespace RobotController
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
-             
+
             MyQuat result;
 
             result.w = (float)Math.Cos((angle / 2) * Math.PI / 180);
@@ -226,6 +307,19 @@ namespace RobotController
         internal float CalculateLerp(float a, float b, float t)
         {
             return a + (b - a) * t;
+        }
+
+        internal static MyQuat Inverse(MyQuat q1)
+        {
+
+            MyQuat result;
+            result.w = q1.w;
+            result.x = -q1.x;
+            result.y = -q1.y;
+            result.z = -q1.z;
+
+            return result;
+
         }
 
 

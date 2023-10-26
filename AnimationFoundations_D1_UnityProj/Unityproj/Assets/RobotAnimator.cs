@@ -118,7 +118,7 @@ public class RobotAnimator : MonoBehaviour
 
 
 
-                if (robot.PickStudAnim(out j0, out j1, out j2, out j3))
+                if (robot.PickStudAnim(out j0, out j1, out j2, out j3)  == true)
                 {
                     //Debug.Log("moving the robot to pick and leave the Stud");
                     joints[0].rotation = Quaternion(j0);
@@ -147,6 +147,7 @@ public class RobotAnimator : MonoBehaviour
                     joints[2].rotation = Quaternion(j2);
                     joints[3].rotation = Quaternion(MyRobotController.GetSwing(j3));
                     joints[4].rotation = Quaternion(MyRobotController.GetTwist(j3));
+                    
 
                 }
                 else
