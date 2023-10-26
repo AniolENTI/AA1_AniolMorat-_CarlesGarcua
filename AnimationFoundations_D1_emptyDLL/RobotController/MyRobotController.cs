@@ -43,7 +43,7 @@ namespace RobotController
         public string Hi()
         {
 
-            string s = "hello world from my Robot Controller";
+            string s = "Hola som el Carles García i l'Aniol Morató";
             return s;
 
         }
