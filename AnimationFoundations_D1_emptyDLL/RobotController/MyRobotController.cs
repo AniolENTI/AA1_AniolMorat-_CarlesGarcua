@@ -23,7 +23,7 @@ namespace RobotController
         public float z;
     }
 
-
+    
 
 
 
@@ -32,9 +32,13 @@ namespace RobotController
     {
 
         #region public methods
+        
         float interpolationValue = 0;
         bool ex2Condition = false;
         bool ex3Condition = false;
+
+       static MyQuat swing = new MyQuat();
+       static  MyQuat twist = new MyQuat();
 
         public string Hi()
         {
@@ -71,7 +75,7 @@ namespace RobotController
             //Rotate the joints 1, 2 and 3 to the respective positions in order to put it straight
             rot1 = Rotate(rot0, rotationAxis, -7);
             rot2 = Rotate(rot1, rotationAxis, 80);
-            rot3 = Rotate(rot2, rotationAxis,0);
+            rot3 = Rotate(rot2, rotationAxis, 0);
 
             ex2Condition = true;
             ex3Condition = true;
@@ -88,66 +92,10 @@ namespace RobotController
             //Define rotation angle axis
             MyVec rotationAxis;
 
-            
+
 
 
             if (ex2Condition && interpolationValue <= 1)
-            {
-                //First angle to rotate in: y               
-                    rotationAxis.x = 0;
-                    rotationAxis.y = 1;
-                    rotationAxis.z = 0;
-
-                    //Rotate joint 0 to position
-                    rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
-                    rot0 = Rotate(rot0, rotationAxis, CalculateLerp(74, 40, interpolationValue));
-
-                    //Second axis to rotate in: x
-                    rotationAxis.x = 1;
-                    rotationAxis.y = 0;
-
-
-                    //Rotate each joint to each position
-                    rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
-                    rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
-                    rot3 = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
-
-                    interpolationValue += 0.0035f;
-                                  
-                    
-             
-                return true;
-            }
-            else
-            {
-                interpolationValue = 0;
-
-                rot0 = NullQ;
-                rot1 = NullQ;
-                rot2 = NullQ;
-                rot3 = NullQ;
-
-                ex2Condition = false;
-
-                return false;
-            }
-            
-        }
-
-
-        //EX3: this function will calculate the rotations necessary to move the arm of the robot until its end effector collides with the target (called Stud_target)
-        //it will return true until it has reached its destination. The main project is set up in such a way that when the function returns false, the object will be droped and fall following gravity.
-        //the only difference wtih exercise 2 is that rot3 has a swing and a twist, where the swing will apply to joint3 and the twist to joint4
-
-        public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
-        {
-
-            MyVec rotationAxis;
-
-
-
-
-            if (ex3Condition && interpolationValue <= 1)
             {
                 //First angle to rotate in: y               
                 rotationAxis.x = 0;
@@ -166,11 +114,88 @@ namespace RobotController
                 //Rotate each joint to each position
                 rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
                 rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
-                MyQuat swing = Rotate(rot2, rotationAxis, CalculateLerp(80, 39, interpolationValue));
-                MyQuat twist = Rotate(swing, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+                rot3 = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
+
+                interpolationValue += 0.0035f;
 
 
-                rot3 = Multiply(swing,twist);
+
+                return true;
+            }
+            else
+            {
+                interpolationValue = 0;
+
+                rot0 = NullQ;
+                rot1 = NullQ;
+                rot2 = NullQ;
+                rot3 = NullQ;
+
+                ex2Condition = false;
+
+                return false;
+            }
+
+        }
+
+
+        //EX3: this function will calculate the rotations necessary to move the arm of the robot until its end effector collides with the target (called Stud_target)
+        //it will return true until it has reached its destination. The main project is set up in such a way that when the function returns false, the object will be droped and fall following gravity.
+        //the only difference wtih exercise 2 is that rot3 has a swing and a twist, where the swing will apply to joint3 and the twist to joint4
+
+        public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
+        {
+
+            MyVec rotationAxis;
+
+
+
+
+            if (ex3Condition && interpolationValue <= 1)
+            {
+               
+                //First angle to rotate in: y               
+                rotationAxis.x = 0;
+                rotationAxis.y = 1;
+                rotationAxis.z = 0;
+
+                //Rotate joint 0 to position
+                rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
+                rot0 = Rotate(rot0, rotationAxis, CalculateLerp(74, 40, interpolationValue));
+
+                //Second axis to rotate in: x
+                rotationAxis.x = 1;
+                rotationAxis.y = 0;
+
+
+                //Rotate each joint to each position
+                rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
+                rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+
+                //Tird axis to rotate in: x
+                rotationAxis.x = 1;
+                rotationAxis.y = 0;
+                rotationAxis.z = 0;
+
+
+                //Calculate swing 
+                swing = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
+
+
+                //Fourth axis to rotate in: z
+                rotationAxis.x = 0;
+                rotationAxis.y = 1;
+                rotationAxis.z = 0;
+
+                //Calculate twist
+                twist = Rotate(swing, rotationAxis, CalculateLerp(0, 45, interpolationValue));
+
+               
+                
+
+
+
+                rot3 = Multiply(swing, twist);
 
                 interpolationValue += 0.0035f;
 
@@ -206,7 +231,7 @@ namespace RobotController
         {
             //todo: change the return value for exercise 3
 
-            MyQuat result = Multiply(Inverse(GetTwist(rot3)), rot3);
+            MyQuat result = Multiply(Inverse(twist), rot3);
 
             return result;
 
@@ -219,10 +244,7 @@ namespace RobotController
 
             MyQuat result;
 
-            result.w = rot3.x;
-            result.x = 0;
-            result.y = 0;
-            result.z = rot3.w;
+            result = Multiply(rot3,Inverse(swing));
 
             return result;
 
