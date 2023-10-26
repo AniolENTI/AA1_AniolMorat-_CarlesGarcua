@@ -58,7 +58,7 @@ namespace RobotController
             rotationAxis.y = 1;
             rotationAxis.z = 0;
 
-            //Rotate the joint 0 to position 75
+            //Rotate the joint 0 to position 74
             rot0 = NullQ; //Need to give this value, if I don't it's not defined and it doesn't work
             rot0 = Rotate(rot0, rotationAxis, 74);
 
@@ -166,7 +166,11 @@ namespace RobotController
                 //Rotate each joint to each position
                 rot1 = Rotate(rot0, rotationAxis, CalculateLerp(-7, 20, interpolationValue));
                 rot2 = Rotate(rot1, rotationAxis, CalculateLerp(80, 39, interpolationValue));
-                rot3 = Rotate(rot2, rotationAxis, CalculateLerp(40, 35, interpolationValue));
+                MyQuat swing = Rotate(rot2, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+                MyQuat twist = Rotate(swing, rotationAxis, CalculateLerp(80, 39, interpolationValue));
+
+
+                rot3 = Multiply(swing,twist);
 
                 interpolationValue += 0.0035f;
 
